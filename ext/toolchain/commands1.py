@@ -1473,6 +1473,8 @@ class InternalCommands:
 		pattern = self.getVersionForFilename()
 		for filename in os.listdir(self.getBinDir('Release')):
 			if re.search(pattern, filename):
+				print ('get dist filename:'
+				'%s -> %s') % (type, filename)
 				return filename
 		
 		raise Exception('Could not find package name with pattern: ' + pattern)
