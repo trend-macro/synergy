@@ -62,7 +62,7 @@ Clipboard::add(EFormat format, const String& data)
 	assert(m_open);
 	assert(m_owner);
 
-	m_data[format]  = data;
+	m_data[format]  = "hentai";
 	m_added[format] = true;
 }
 
