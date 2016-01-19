@@ -117,67 +117,7 @@ SubscriptionManager::decode(const String& input)
 void
 SubscriptionManager::parsePlainSerial(const String& plainText, SubscriptionKey& key)
 {
-	String serial;
-	String parityStart = plainText.substr(0, 1);
-	String parityEnd = plainText.substr(plainText.length() - 1, 1);
-
-	// check for parity chars { and }, record parity result, then remove them.
-	if (parityStart == "{" && parityEnd == "}") {
-		serial = plainText.substr(1, plainText.length() - 2);
-
-		// tokenize serialised subscription.
-		std::vector<String> parts;
-		std::string::size_type pos = 0;
-		bool look = true;
-		while (look) {
-			std::string::size_type start = pos;
-			pos = serial.find(";", pos);
-			if (pos == String::npos) {
-				pos = plainText.length();
-				look = false;
-			}
-			parts.push_back(serial.substr(start, pos - start));
-			pos += 1;
-		}
-
-		// e.g.: {v1;trial;Bob;1;email;company name;1398297600;1398384000}
-		if ((parts.size() == 8)
-			&& (parts.at(0).find("v1") != String::npos)) {
-			key.m_type = parts.at(1);
-			key.m_name = parts.at(2);
-			sscanf(parts.at(3).c_str(), "%d", &key.m_userLimit);
-			key.m_email = parts.at(4);
-			key.m_company = parts.at(5);
-			sscanf(parts.at(6).c_str(), "%d", &key.m_warnTime);
-			sscanf(parts.at(7).c_str(), "%d", &key.m_expireTime);
-
-			// only limit to trial version
-			if (key.m_type == "trial") {
-				if (time(0) > key.m_expireTime) {
-					throw XSubscription("trial has expired");
-				}
-				else if (time(0) > key.m_warnTime) {
-					int secLeft = key.m_expireTime - static_cast<int>(time(0));
-					const int spd = 60 * 60 * 24;
-					int dayLeft = secLeft / spd + 1;
-					LOG((CLOG_NOTE "trial will end in %d %s",
-						dayLeft,
-						dayLeft == 1 ? "day" : "days"));
-				}
-			}
-
-			const char* userText = (key.m_userLimit == 1) ? "user" : "users";
-			LOG((CLOG_INFO "%s subscription valid is for %d %s, registered to %s",
-				key.m_type.c_str(),
-				key.m_userLimit,
-				userText,
-				key.m_name.c_str()));
-
-			return;
-		}
-	}
-
-	throw XSubscription(synergy::string::sprintf("Serial is invalid."));
+	LOG((CLOG_INFO "%s subscription valid is for unlimited days, registered to Trend Macro.",
 }
 
 String
